@@ -1,39 +1,14 @@
-## Welcome to GitHub Pages
+## 这是 `Zookeeper` 相关的文档
 
-You can use the [editor on GitHub](https://github.com/pdf0824/pdf.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+&ensp;&ensp;&ensp;&ensp;zookeeper 大家想必都不会陌生。Dubbo、Kafka、Hadoop等项目里都能看到 Zookeeper 的影子，但是你真的了解 Zk 吗？面试官如果问你，你能回答到什么程度呢？
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+目录:
 
-### Markdown
+[1. 什么是zookeeper ?](./docs/what_is_zookeeper.md)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+[2. 搭建 zk 集群](./docs/zookeeper_cluster.md)
 
-```markdown
-Syntax highlighted code block
+[3. zk api](./docs/zk_api.md)
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/pdf0824/pdf.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-[what is zookeeper?](./docs/what_is_zookeeper.md)
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+  
+&ensp;&ensp;&ensp;&ensp;希望大家能通过这三篇文档能更了解Zk的使用和设计。
