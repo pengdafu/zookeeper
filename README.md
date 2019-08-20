@@ -6,7 +6,7 @@
 
 [1. 什么是zookeeper ?](./docs/what_is_zookeeper.md)
 
-[2. 搭建 zk 集群](./docs/zookeeper_cluster.md)
+[2. 搭建 zk 集群](./docs/zk_cluster.md)
 
 [3. zk api](./docs/zk_api.md)
 
