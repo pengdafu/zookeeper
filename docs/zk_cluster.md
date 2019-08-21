@@ -2,9 +2,9 @@
 
 这篇文件，会讲解Zk独立模式、复制模式、概念，目录：
 
-[Zk 单节点搭建](#Zk-单节点搭建)
+[Zk 单节点搭建](#zk-单节点搭建)
 
-[Zookeeper 概念](#Zookeeper-概念)
+[Zookeeper 概念](#zookeeper-概念)
 
 ## Zk 单节点搭建
 
@@ -93,33 +93,37 @@ zkCli.sh -server localhost:2181
 
 如果连接成功，那么你应该进入Zk的命令行界面。
 
-在shell中，输入 `help` 可以获取客户端可执行的命令列表:
+在shell中，随便输入一个错误的命令可以获取客户端可执行的命令列表:
 
 ```shell
 help 
 
 ZooKeeper -server host:port cmd args
-	stat path [watch]
-	set path data [version]
-	ls path [watch]
-	delquota [-n|-b] path
-	ls2 path [watch]
-	setAcl path acl
-	setquota -n|-b val path
-	history 
-	redo cmdno
-	printwatches on|off
-	delete path [version]
-	sync path
-	listquota path
-	rmr path
-	get path [watch]
-	create [-s] [-e] path data acl
 	addauth scheme auth
-	quit 
-	getAcl path
 	close 
+	config [-c] [-w] [-s]
 	connect host:port
+	create [-s] [-e] [-c] [-t ttl] path [data] [acl]
+	delete [-v version] path
+	deleteall path
+	delquota [-n|-b] path
+	get [-s] [-w] path
+	getAcl [-s] path
+	history 
+	listquota path
+	ls [-s] [-w] [-R] path
+	ls2 path [watch]
+	printwatches on|off
+	quit 
+	reconfig [-s] [-v version] [[-file path] | [-members serverID=host:port1:port2;port3[,...]*]] | [-add serverId=host:port1:port2;port3[,...]]* [-remove serverId[,...]*]
+	redo cmdno
+	removewatches path [-c|-d|-a] [-l]
+	rmr path
+	set [-s] [-v version] path data
+	setAcl [-s] [-v version] [-R] path acl
+	setquota -n|-b val path
+	stat [-w] path
+	sync path
 
 ```
 
@@ -157,7 +161,7 @@ ls /
 接下来，我们使用 `get` 命令去验证刚刚创建znode时携带的数据是否和znode关联:
 
 ```shell
-get /zk_test
+get /zk_test -s
 
 my_data
 cZxid = 0x4
@@ -178,6 +182,9 @@ numChildren = 0
 ```shell
 set /zk_test my_data_change
 
+get /zk_test -s
+
+my_data_change
 cZxid = 0x4
 ctime = Tue Aug 20 15:48:02 CST 2019
 mZxid = 0x5
@@ -191,19 +198,22 @@ dataLength = 14
 numChildren = 0
 
 ```
-(经过get再次验证，发现set后数据是被更改了的)。
 
 那么，经过一些简单的感受，我们是成功的启动一个单实例Zk。但是我们先不急着讲复制模式。我们先来了解Zk的一些概念。
 
 ## Zookeeper 概念
 
-[Zookeeper的数据模型](#Zookeeper的数据模型)
+[Zookeeper的数据模型](#zookeeper的数据模型)
 
-[Znodes](#Znodes)
+[Znodes](#znodes)
 
-[Zookeeper中的时间](#Zookeeper中的时间)
+[Zookeeper中的时间](#zookeeper中的时间)
 
-[ZooKeeper Stat Structure](#ZooKeeper-Stat-Structure)
+[ZooKeeper Stat Structure](#zooKeeper-stat-structure)
+
+[ZooKeeper Session](#zookeeper-session)
+
+[ZooKeeper 监听器](#zk监听器)
 
 ### Zookeeper的数据模型
 
@@ -222,13 +232,13 @@ Zookeeper树中的每个节点都叫Znode。Znodes维护一个stat结构，这�
 
 **Note**
 
-> 在分布式系统中，'node' 可以值通用主机、服务器、集合成员、客户端进程等等，但是在Zk中，znode指的是数据节点，Servers才是构成Zk服务的主机，client指的是使用Zk服务的任何主机或者进程。
+> 在分布式系统中，node 可以指通用主机、服务器、集合成员、客户端进程等等，但是在Zk中，znode指的是数据节点，Servers才是构成Zk服务的主机，client指的是使用Zk服务的任何主机或者进程。
 
 znode是开发人员访问的最主要的功能，它有几个值得一提的特征:
 
 #### Watches
 
-客户端可以在znodes上设置监听，改变znode会触发监听机制并移除该监听，当监听触发时，Zk会给客户端发送一个通知。更多信息在[Zk Watches](#Zk-Watcher)。
+客户端可以在znodes上设置监听，改变znode会触发监听机制并移除该监听，当监听触发时，Zk会给客户端发送一个通知。更多信息在[Zk Watches](#zk监听器)。
 
 #### 数据访问(Data Access)
 
@@ -294,3 +304,58 @@ Zk中每个znode的Stat结构由以下字段组成:
 - **ephemeralOwner**: 如果该节点是临时节点，则表示创建该节点的会话id，否则是0
 - **dataLength**: 这个节点的数据长度
 - **numChildren**: 该节点的子节点个数
+
+### Zookeeper Session
+
+通过使用一种语言绑定来创建服务端的句柄，一个ZooKeeper客户端可以和ZooKeeper服务创建会话。一旦创建，句柄开始在CONNECTING 状态，客户端库尝试连接组成ZooKeeper服务中的其中一个服务器并且切换到CONNECTED状态。在正常的操作期间将会是这两种状态之一。如果一个不可恢复的错误发生了，比如说会话过期或授权失败，或者如果应用显示地关闭了句柄，句柄将会到CLOSED状态。下面的图展示了一个ZooKeeper客户端可能的状态转变。
+
+![zookeeper session](../images/zk_session.png)
+
+为了创建一个客户端会话，应用程序代码应该提供一串以逗号分隔的，并且主机号和端口号成对出现的字符串，每个都相当于一个Zk服务(列如: "localhost:2181" 或者 "localhost:2181,192.168.2.210:2181,192.168.2.75:2181")。Zk客户端会任意选择一个服务器并尝试连接他，如果连接失败，或者客户端由于某些原因从服务器断开连接，客户端将自动尝试列表中的下一个服务器，直到一个连接建立。
+
+**Added in 3.2.0**: "chroot"后缀可以被加在连接字符串后面，这会运行客户端命令导致所有的路径都和这个跟路径相关。如果使用像下面的示例：”127.0.0.1:4545/app/a或 “127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002/app/a” ，客户端将把”/app/a”作为跟路径，并且所有的路径都与这个根路径相关，比如getting、setting等。”/foo/bar” 将导致操作在”/app/a/foo/bar”（从服务端的观点来看）。这个特性在多租户下面是非常也有用的，ZooKeeper服务的每个用户可以有不同的根路径。这让再使用变得非常简单，因为每个用户都可以编写代码让他的应用好像在”/”根路径下，但实际的位置能在部署时决定。
+
+当一个客户端从ZooKeeper服务得到一个句柄，ZooKeeper创建了一个会话，表现为一个64位的数字，并把 它分配给客户端。如果客户端连接到一个不同的服务端，在连接握手的时候它将发送这个会话id。作为一个安全措施，服务端给会话id创建了一个密码，让服务端能够校验。当客户端建立会话的时候，这个密码随着会话id一起发送给客户端。每当客户端与一个新的服务端恢复会话的时候，密码会随着会话id一起发送过去。
+
+客户端调用创建会话的时候有一个参数是会话超时时间（毫秒），客户端发送一个要求的超时时间，服务端回复一个他能给客户端的超时时间。当前实现要求超时时间至少是2倍的tickTime(在服务器配置中设置)，最大是20倍的tickTime。ZooKeeper客户端API允许使用一个协商的超时时间。
+
+当一个客户端从ZK服务集群成为分区，它将开始寻找在会话创建时期指定的服务端列表。最终，当客户端和至少一个服务端联通重新建立的时候，会话要么转变成“connected”状态（如果在会话超时时间内恢复连接），要么转变成“expired”状态（如果在超时时间之外恢复连接）。在断开时创建一个新的会话是不可取的。ZK客户端库将处理连接。尤其是客户端内部有方法来处理像“羊群效应”之类的事情。仅仅在你被通知会话过期的时候去创建一个新的会话。
+
+ZooKeeper集群自己管理会话过期，而不是由客户端管理。当ZK客户端和一个集群建立会话，它提供一个“超时时间”。这个值被集群使用来决定客户端的会话是否过期。当集群不能在指定的会话超时时间内从客户端收到信息，过期发生。在会话过期期间，集群将删除由这个会话创建的所有的临时节点，并且立即通知连接的客户端这个改变。此时，会话过期的客户端依然和集群式断开的，它不会收到通知直到它能和集群重新建立连接。这个客户端将保持断开状态直到和集群的TCP连接重新建立，并且在这个时候，过期会话的监听将会收到“会话过期”通知。
+
+对于一个过期的会话，监听器所看到的状态转变：
+
+1. “connected”：会话建立，并且客户端和集群能够交流
+2. ...客户端从集群被分割
+3. “disconnected”：客户端和集群断开连接
+4. ...时间流逝，在超时时间之后，集群已经让这个会话过期，而客户端并不知道，因为它已经和集群断开连接了
+5. ...时间流逝，客户端和集群重新建立连接，并且能和集群通信
+6. “expired”：客户端将收到会话过期的信息
+
+ZooKeeper会话建立的另一个参数是默认监听器。当客户端的一些状态改变发生，监听器会收到通知。比如如果客户端丢失与服务端的连接，客户端将会收到通知，或客户端的会话到期等。这个监听器应该考虑初始状态到断开连接。对于一个新的连接，第一给发给监听器的事件就是会话连接事件。
+
+客户端通过发送请求保持会话存活。如果会话在一段时间内空闲将会导致会话超时，客户端将会发送PING请求保持会话存活。这个PING请求不仅仅让ZooKeeper服务端知道客户端是存活的，而且让客户端检查它的和ZooKeeper 服务端的连接也是存活的。PING的时间是足够保守的合理时间，来发现死掉的连接和一个新的服务端重新连接。
+
+一旦成功建立一个到服务端的连接，当客户端发生connectionloss异常 时有两种基本的情况，在执行一个同步或者非同步的操作时：
+
+1. 应用调用一个操作，但是会话不再存活。
+
+2. 当等待一个操作的时候ZooKeeper客户端从服务端断开连接，比如说：等待一个异步调用。
+
+**Added in 3.2.0-SessionMovedException**: 有一个内部的异常，通常不会被客户端发现，被称为SessionMovedException。一个已经连接的会话但是重新连接到了一个不同的服务器上接收了一个请求，这个异常就会发生。这个错误的正常原因是一个客户端发送了一个请求到一个服务端，但是网络数据包延迟了，所以客户端超时并连接到了一个新的服务器。当延迟的数据包到达了第一个服务器，这个服务端发现这个会话已经被移除了并且关闭了这个客户端连接。客户端一般不会发现这个错误因为它们不在从老的连接读取数据（老的连接一般被关闭了）。这种事情发生的另一种情况是当两个客户端使用一个保存的会话id和密码来尝试恢复相同的连接时，只有一个客户端能够恢复连接，另一个客户端将会断开。
+
+**更新服务器列表**: 我们允许一个客户端更新连接字符串通过提供一个新的逗号分隔的主机：端口号列表，每个都是一个服务器。函数调用一个概率负载均衡算法会引起客户端断开与当前主机的连接，来使在新列表中的每个服务器达到与预期一致的数量。万一客户端连接的当前主机不在新的列表中，这个调用会引起连接被删除。另外，这个决定基于是否服务器的数量增加或减少了多少。
+
+比如说，如果之前的连接包含三个主机，现在的连接多了两个主机，连接到每个主机的客户端的40%为了负载均衡将会移动到新的主机上去。这个算法会引起客户端断掉它当前与服务器的连接，这个概览是0.4，并且客户端随机选择两个新主机中的一个连接。
+
+另一个例子，假设我们有5个主机，然后现在更新列表移除两个主机，连接到剩余三台主机的客户端依然保持连接，然而所有连接到已被移除主机的客户端都需要移到剩下三台主机的一台上，并且这种选择是随机的。如果连接断开，客户端进入一个特殊的模式并使用概率算法选择一个新的服务器，而不仅仅只是循环。
+
+在第一个例子中，每个客户端决定断开连接的概率为0.4，但是一旦做了决定，它将会随机的连接到一个新的服务器，仅仅当它不能连接到任何一台新的服务器上时，它将尝试连接旧的服务器。当找到一个服务器或者新列表中所有的服务器都连接失败的时候，客户端回到操作正常模式，选择一个任意的服务器并尝试连接它，如果连接失败，它会继续尝试不同的随机的服务器，并一直循环下去。
+
+### Zk监听器
+
+ZooKeeper中所有的读操作——getData(), getChildren()和 exists() — 可以选择设置 一个监听器。这是ZooKeeper’s一个监听器的定义：一个监听事件是一次性触发，当一个被设置监听的数据改变时，发送给设置这个监听器的客户端。在这个监听器的定义中，有三个要点：
+
+- 一次性触发：当数据改变的时候一个监听事件会被发送给客户端。比如说，如果一个客户端做了getData(“/znode1″, true)操作，然后 /znode1下的数据被改变或者删除了，客户端将得到/znode1的一个监听事件。如果/znode1节点再次发生改变，没有监听事件会被发送除非客户端做了别的设置了一个新的监听器。
+
+- 
