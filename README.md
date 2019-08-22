@@ -6,9 +6,11 @@
 
 [1. 什么是zookeeper ?](./docs/what_is_zookeeper.md)
 
-[2. 搭建 zk 集群](./docs/zk_cluster.md)
+[2. 单节点Zk搭建和Zk的概念](./docs/zk_single_and_concept.md)
 
-[3. zk api](./docs/zk_api.md)
+[3. Zk api](./docs/zk_api.md)
+
+[4. Zk集群](./docs/zk_cluster.md)
 
   
-&ensp;&ensp;&ensp;&ensp;希望大家能通过这三篇文档能更了解Zk的使用和设计。
+&ensp;&ensp;&ensp;&ensp;希望大家能通过这几篇文档能更了解Zk的使用和设计。
