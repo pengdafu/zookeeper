@@ -20,8 +20,12 @@
 
 
 > 
-> ![支付宝](./images/alipay.jpg)支付宝扫码
+> ![支付宝](./images/alipay.jpg)
+
+支付宝扫码
 
 <br><br><br>
 >
->![微信](./images/wxpay.jpg)微信扫码
+>![微信](./images/wxpay.jpg)
+
+微信扫码
