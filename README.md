@@ -14,3 +14,14 @@
 
   
 &ensp;&ensp;&ensp;&ensp;希望大家能通过这几篇文档能更了解Zk的使用和设计。
+
+<br><br><br>
+如果大家觉得这篇文档还不错，欢迎你请我喝一杯咖啡哦～～
+
+
+> 
+> ![支付宝](./images/alipay.jpg)支付宝扫码
+
+<br><br><br>
+>
+>![微信](./images/wxpay.jpg)微信扫码
