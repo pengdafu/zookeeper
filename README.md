@@ -12,9 +12,11 @@ zookeeper 大家想必都不会陌生。Dubbo、Kafka、Hadoop等项目里都能
 
 [4. Zk集群](./docs/zk_cluster.md)
 
-[5. zab协议](./docs/zab.md)
+[5. Zk 运维](./docs/zk_config.md)
 
-[6. k8s 搭建Zk](./docs/k8s_with_zk.md)
+[6. zab协议](./docs/zab.md)
+
+[7. k8s 搭建Zk](./docs/k8s_with_zk.md)
 
   
 希望大家能通过这几篇文档能更了解Zk的使用和设计。
