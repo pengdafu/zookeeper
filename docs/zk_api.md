@@ -1,4 +1,6 @@
-# zookeeper 客户端命令
+# zookeeper 客户端命令和四字命令以及AdminServer
+
+## 客户端命令
 
 本篇的重点是讲解使用 `zkCli.sh -server localhost:2181` 连接到Zk之后，在交互式shell中，ZkCli的命令。
 
@@ -469,11 +471,9 @@ Authentication is not valid : /digest
 #### x509 方案
 	太复杂，不讨论。
 
-# Zookeeper 四字命令
+## Zookeeper 四字命令
 
 Zk 提供四字命令用于运维，我们可以借助 `nc` 或者 `telnet` 等工具向Zk发送四字命令。在Zk3.5以上版本，提供 `AdminServer` 为四字命令提供http调用接口，http服务使用jetty服务器，端口8080。
-
-## 四字命令
 
 ### conf
 
