@@ -10,7 +10,7 @@ zookeeper 大家想必都不会陌生。Dubbo、Kafka、Hadoop等项目里都能
 
 [3. Zk客户端命令](./docs/zk_api.md)
 
-[4. Zk集群](./docs/zk_cluster.md)
+[4. Zk集群搭建](./docs/zk_cluster.md)
 
 [5. Zk 运维](./docs/zk_config.md)
 
